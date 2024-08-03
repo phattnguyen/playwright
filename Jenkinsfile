@@ -6,20 +6,20 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/phattnguyen/playwright']])
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/phattnguyen/playwright.git']])
             }
         }
-        stage('Install') {
+        stage('Install Playwright') {
             steps {
                 sh '''
                     npm i -D @playwright/test && npx playwright install
             '''
             }
         }
-        stage('Testing') {
+        stage('Execute Tests') {
             steps {
                 sh '''
-                    npx playwright test --project=chromium
+                    npx playwright test assignment5.spec.ts --project=chrome
                 '''
             }
         }
