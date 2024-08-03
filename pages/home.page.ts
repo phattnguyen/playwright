@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+import { assert } from 'console';
 import { Page } from 'playwright';
 
 export class HomePage {
@@ -8,31 +9,26 @@ export class HomePage {
     this.page = page;
   }
 
+  homePageUrl = 'https://www.saucedemo.com/';
+
+  //Locators
+  loginButton = '[id="login-button"]';
+  errorMsg = '//h3[text()="Epic sadface: Sorry, this user has been locked out."]'
+
+
   async navigate() {
-    await this.page.goto('https://www.saucedemo.com/inventory.html');
+    await this.page.goto(this.homePageUrl);
+  }
+  
+  async login(user : string, password : string){
+    await this.page.getByPlaceholder('Username').fill(user);
+    await this.page.getByPlaceholder('Password').fill(password);
+    await this.page.locator(this.loginButton).click();
   }
 
-  async clickSort(value: string) {
-    await this.page.selectOption('[class=product_sort_container]', { value: value });
+  async verifyLoginFailed(){
+    const textContent = await this.page.textContent('body');
+    expect(textContent).toContain('Epic sadface: Sorry, this user has been locked out.');
   }
 
-  async verifyProductSorted(){
-    const elements = await this.page.$$("div[data-test='inventory-item-price']");
-    const textArray: number[] = [];
-    for (const element of elements) {
-        const text = await element.textContent();
-        const numberAsText = text?.replace('$','') || '';
-
-        console.log('text is ',numberAsText);
-
-        textArray.push(parseFloat(numberAsText));
-    }
-
-
-    await console.log('array is: ', textArray);
-
-    for (let i = 0; i < textArray.length - 1; i++) {
-        expect(textArray[i] <= textArray[i+1]).toBeTruthy();
-      }
-  }
 }
